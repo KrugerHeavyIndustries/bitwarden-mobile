@@ -10,22 +10,33 @@ using Bit.Core.Exceptions;
 using Bit.Core.Models.Domain;
 using Bit.Core.Models.Request;
 using Bit.Core.Models.Response;
+using Bit.Core.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using ModernHttpClient;
 
 namespace Bit.Core.Services
 {
     public class ApiService : IApiService
     {
-        private readonly JsonSerializerSettings _jsonSettings = new JsonSerializerSettings
+        private readonly JsonSerializerSettings _jsonSettings = new JsonSerializerSettings()
         {
             ContractResolver = new CamelCasePropertyNamesContractResolver()
         };
-        private readonly HttpClient _httpClient = new HttpClient();
+
+        private NativeMessageHandler _handler = new NativeMessageHandler();
+
+        private HttpClient _httpClient;
         private readonly ITokenService _tokenService;
         private readonly IPlatformUtilsService _platformUtilsService;
         private readonly Func<Tuple<string, bool, bool>, Task> _logoutCallbackAsync;
+
+        private readonly string _customUserAgent;
+
+        private static readonly string PFX12_PASSWORD = "bitwarden";
 
         public ApiService(
             ITokenService tokenService,
@@ -36,14 +47,10 @@ namespace Bit.Core.Services
             _tokenService = tokenService;
             _platformUtilsService = platformUtilsService;
             _logoutCallbackAsync = logoutCallbackAsync;
-            var device = (int)_platformUtilsService.GetDevice();
-            _httpClient.DefaultRequestHeaders.Add("Device-Type", device.ToString());
-            _httpClient.DefaultRequestHeaders.Add("Bitwarden-Client-Name", _platformUtilsService.GetClientType().GetString());
-            _httpClient.DefaultRequestHeaders.Add("Bitwarden-Client-Version", _platformUtilsService.GetApplicationVersion());
-            if (!string.IsNullOrWhiteSpace(customUserAgent))
-            {
-                _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(customUserAgent);
-            }
+
+            _httpClient = new HttpClient(_handler);
+
+            ConfigureHttpClient();
         }
 
         public bool UrlsSet { get; private set; }
@@ -79,6 +86,30 @@ namespace Bit.Core.Services
             {
                 EventsBaseUrl = "https://events.bitwarden.com";
             }
+        }
+
+        public void SetClientAuthentication(ClientAuthentication clientAuth)
+        {
+            X509Certificate2 cert = new X509Certificate2(RsaPkcs8.DecodePemCertificate(clientAuth.Certificate));
+            RSACryptoServiceProvider RSA = RsaPkcs8.DecodePkcs8PrivateKey(RsaPkcs8.DecodePemPrivateKey(clientAuth.PrivateKey));
+
+            var certWithPrivKey = cert.CopyWithPrivateKey(RSA);
+            byte[] pfx12 = certWithPrivKey.Export(X509ContentType.Pkcs12, PFX12_PASSWORD);
+            string pfx12b64 = Convert.ToBase64String(pfx12);
+
+            _handler = new NativeMessageHandler(false, new TLSConfig()
+            {
+                DangerousAcceptAnyServerCertificateValidator = true,
+                ClientCertificate = new ClientCertificate()
+                {
+                    RawData = pfx12b64,
+                    Passphrase = PFX12_PASSWORD
+                }
+            });
+
+            _httpClient = new HttpClient(_handler);
+
+            ConfigureHttpClient();
         }
 
         #region Auth APIs
@@ -813,6 +844,18 @@ namespace Bit.Core.Services
             catch
             {
                 return null;
+            }
+        }
+
+        private void ConfigureHttpClient()
+        {
+            var device = (int)_platformUtilsService.GetDevice();
+            _httpClient.DefaultRequestHeaders.Add("Device-Type", device.ToString());
+            _httpClient.DefaultRequestHeaders.Add("Bitwarden-Client-Name", _platformUtilsService.GetClientType().GetString());
+            _httpClient.DefaultRequestHeaders.Add("Bitwarden-Client-Version", _platformUtilsService.GetApplicationVersion());
+            if (!string.IsNullOrWhiteSpace(_customUserAgent))
+            {
+                _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(_customUserAgent);
             }
         }
 

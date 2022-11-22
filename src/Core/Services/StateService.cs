@@ -221,6 +221,30 @@ namespace Bit.Core.Services
             ))?.Settings?.EnvironmentUrls;
         }
 
+        public async Task SetEnvironmentCertificateDataAsync(HttpClientData value)
+        {
+            await SetValueAsync(
+                Constants.ClientCertificate, value, await GetDefaultStorageOptionsAsync());
+        }
+
+        public async Task<HttpClientData> GetEnvironmentClientCertificateAsync(string userId = null)
+        {
+            return await GetValueAsync<HttpClientData>(
+                Constants.ClientCertificate, await GetDefaultStorageOptionsAsync());
+        }
+
+        public async Task<bool?> GetUseTLSAuthenticationAsync()
+        {
+            return await GetValueAsync<bool?>(
+                Constants.UseTLSAuthentication, await GetDefaultStorageOptionsAsync());
+        }
+
+        public async Task SetUseTLSAuthenticationAsync(bool? value)
+        {
+            await SetValueAsync(
+                Constants.UseTLSAuthentication, value, await GetDefaultStorageOptionsAsync());
+        }
+
         public async Task<bool?> GetBiometricUnlockAsync(string userId = null)
         {
             var reconciledOptions = ReconcileOptions(new StorageOptions { UserId = userId },

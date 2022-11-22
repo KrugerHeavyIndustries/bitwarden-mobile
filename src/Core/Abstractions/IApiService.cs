@@ -49,6 +49,7 @@ namespace Bit.Core.Abstractions
         Task<TResponse> SendAsync<TRequest, TResponse>(HttpMethod method, string path,
             TRequest body, bool authed, bool hasResponse, bool logoutOnUnauthorized = true);
         void SetUrls(EnvironmentUrls urls);
+        void SetClientAuthentication(ClientAuthentication clientAuth);
         [Obsolete("Mar 25 2021: This method has been deprecated in favor of direct uploads. This method still exists for backward compatibility with old server versions.")]
         Task<CipherResponse> PostCipherAttachmentLegacyAsync(string id, MultipartFormDataContent data);
         Task<AttachmentUploadDataResponse> PostCipherAttachmentAsync(string id, AttachmentRequest request);

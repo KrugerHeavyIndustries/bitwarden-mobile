@@ -1418,6 +1418,33 @@ namespace Bit.App.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to mTLS Client Authentication.
+        /// </summary>
+        public static string ClientAuthentication {
+            get {
+                return ResourceManager.GetString("ClientAuthentication", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Client certificate (PEM format).
+        /// </summary>
+        public static string ClientAuthenticationCertificate {
+            get {
+                return ResourceManager.GetString("ClientAuthenticationCertificate", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Client private key (PEM format).
+        /// </summary>
+        public static string ClientAuthenticationPrivateKey {
+            get {
+                return ResourceManager.GetString("ClientAuthenticationPrivateKey", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Clone.
         /// </summary>
         public static string Clone {
@@ -1651,6 +1678,15 @@ namespace Bit.App.Resources {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to For advanced users. You can specify a client certificate with which to authenticate..
+        /// </summary>
+        public static string CustomAuthenticationFooter {
+            get {
+                return ResourceManager.GetString("CustomAuthenticationFooter", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Custom environment.
         /// </summary>
@@ -2218,6 +2254,15 @@ namespace Bit.App.Resources {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to The mTLS certificate and private key are expected in PEM format. Please revise and try to save again..
+        /// </summary>
+        public static string EnvironmentPageClientAuthenticationPemError {
+            get {
+                return ResourceManager.GetString("EnvironmentPageClientAuthenticationPemError", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to One or more of the URLs entered are invalid. Please revise it and try to save again..
         /// </summary>
@@ -3434,10 +3479,11 @@ namespace Bit.App.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Login attempt from {0}. Do you want to switch to this account?.
+        ///   Looks up a localized string similar to Login attempt from:
+        ///{0}
+        ///Do you want to switch to this account?.
         /// </summary>
-        public static string LoginAttemptFromXDoYouWantToSwitchToThisAccount
-        {
+        public static string LoginAttemptFromXDoYouWantToSwitchToThisAccount {
             get {
                 return ResourceManager.GetString("LoginAttemptFromXDoYouWantToSwitchToThisAccount", resourceCulture);
             }
@@ -6199,6 +6245,15 @@ namespace Bit.App.Resources {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to Use mTLS Authentication:.
+        /// </summary>
+        public static string UseClientAuthentication {
+            get {
+                return ResourceManager.GetString("UseClientAuthentication", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Use Face ID To Unlock.
         /// </summary>

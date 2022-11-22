@@ -430,5 +430,6 @@
     <None Remove="Controls\AccountSwitchingOverlay\" />
     <None Remove="Utilities\AccountManagement\" />
     <None Remove="Controls\DateTime\" />
+    <None Remove="PemUtils" />
   </ItemGroup>
 </Project>

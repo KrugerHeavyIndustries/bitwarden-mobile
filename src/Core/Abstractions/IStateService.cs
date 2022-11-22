@@ -24,6 +24,10 @@ namespace Bit.Core.Abstractions
         Task<EnvironmentUrlData> GetPreAuthEnvironmentUrlsAsync();
         Task SetPreAuthEnvironmentUrlsAsync(EnvironmentUrlData value);
         Task<EnvironmentUrlData> GetEnvironmentUrlsAsync(string userId = null);
+        Task SetEnvironmentCertificateDataAsync(HttpClientData value);
+        Task<HttpClientData> GetEnvironmentClientCertificateAsync(string userId = null);
+        Task<bool?> GetUseTLSAuthenticationAsync();
+        Task SetUseTLSAuthenticationAsync(bool? value);
         Task<bool?> GetBiometricUnlockAsync(string userId = null);
         Task SetBiometricUnlockAsync(bool? value, string userId = null);
         Task<bool> GetBiometricLockedAsync(string userId = null);

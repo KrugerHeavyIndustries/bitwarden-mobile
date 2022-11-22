@@ -966,6 +966,21 @@ Scanning will happen automatically.</value>
   <data name="CustomEnvironmentFooter" xml:space="preserve">
     <value>For advanced users. You can specify the base URL of each service independently.</value>
   </data>
+   <data name="ClientAuthentication" xml:space="preserve">
+    <value>mTLS Client Authentication</value>
+  </data>
+  <data name="UseClientAuthentication" xml:space="preserve">
+    <value>Use mTLS Authentication:</value>
+  </data>
+  <data name="ClientAuthenticationCertificate" xml:space="preserve">
+    <value>Client certificate (PEM format)</value>
+  </data>
+    <data name="ClientAuthenticationPrivateKey" xml:space="preserve">
+    <value>Client private key (PEM format)</value>
+  </data>
+    <data name="CustomAuthenticationFooter" xml:space="preserve">
+      <value>For advanced users. You can specify a client certificate with which to authenticate.</value>
+   </data>
   <data name="EnvironmentSaved" xml:space="preserve">
     <value>The environment URLs have been saved.</value>
   </data>
@@ -2308,6 +2323,9 @@ select Add TOTP to store the key safely</value>
   </data>
   <data name="EnvironmentPageUrlsError" xml:space="preserve">
     <value>One or more of the URLs entered are invalid. Please revise it and try to save again.</value>
+  </data>
+  <data name="EnvironmentPageClientAuthenticationPemError" xml:space="preserve">
+    <value>The mTLS certificate and private key are expected in PEM format. Please revise and try to save again.</value>
   </data>
   <data name="GenericErrorMessage" xml:space="preserve">
     <value>We were unable to process your request. Please try again or contact us.</value>

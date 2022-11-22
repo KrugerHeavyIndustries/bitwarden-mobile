@@ -15,6 +15,7 @@ namespace Bit.App.Services
         {
             Constants.StateVersionKey,
             Constants.PreAuthEnvironmentUrlsKey,
+            Constants.ClientCertificate,
             Constants.AutofillTileAdded,
             Constants.AddSitePromptShownKey,
             Constants.PushInitialPromptShownKey,

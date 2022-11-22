@@ -24,6 +24,8 @@ namespace Bit.App.Pages
             IdentityUrl = _environmentService.IdentityUrl;
             IconsUrl = _environmentService.IconsUrl;
             NotificationsUrls = _environmentService.NotificationsUrl;
+            ClientCertificatePem = _environmentService.ClientCertificatePem;
+            ClientPrivateKeyPem = _environmentService.ClientPrivateKeyPem;
             SubmitCommand = new AsyncCommand(SubmitAsync, onException: ex => OnSubmitException(ex), allowsMultipleExecutions: false);
         }
 
@@ -34,6 +36,9 @@ namespace Bit.App.Pages
         public string WebVaultUrl { get; set; }
         public string IconsUrl { get; set; }
         public string NotificationsUrls { get; set; }
+        public bool UseClientAuthentication { get; set; }
+        public string ClientCertificatePem { get; set; }
+        public string ClientPrivateKeyPem { get; set; }
         public Action SubmitSuccessAction { get; set; }
         public Action CloseAction { get; set; }
 
@@ -42,6 +47,12 @@ namespace Bit.App.Pages
             if (!ValidateUrls())
             {
                 await Page.DisplayAlert(AppResources.AnErrorHasOccurred, AppResources.EnvironmentPageUrlsError, AppResources.Ok);
+                return;
+            }
+
+            if (UseClientAuthentication && !ValidateClientAuthentication())
+            {
+                await Page.DisplayAlert(AppResources.AnErrorHasOccurred, AppResources.EnvironmentPageClientAuthenticationPemError, AppResources.Ok);
                 return;
             }
 
@@ -55,6 +66,14 @@ namespace Bit.App.Pages
                 Notifications = NotificationsUrls
             });
 
+            await _environmentService.SetUseTLSAuthenticationDataAsync(UseClientAuthentication);
+
+            var resClientData = await _environmentService.SetClientCertificateDataAsync(new Core.Models.Data.HttpClientData
+            {
+                ClientCertificatePem = ClientCertificatePem,
+                ClientPrivateKeyPem = ClientPrivateKeyPem
+            });
+
             // re-set urls since service can change them, ex: prefixing https://
             BaseUrl = resUrls.Base;
             WebVaultUrl = resUrls.WebVault;
@@ -62,6 +81,9 @@ namespace Bit.App.Pages
             IdentityUrl = resUrls.Identity;
             IconsUrl = resUrls.Icons;
             NotificationsUrls = resUrls.Notifications;
+
+            ClientCertificatePem = resClientData.ClientCertificatePem;
+            ClientPrivateKeyPem = resClientData.ClientPrivateKeyPem;
 
             SubmitSuccessAction?.Invoke();
         }
@@ -78,6 +100,16 @@ namespace Bit.App.Pages
                 && IsUrlValid(IdentityUrl)
                 && IsUrlValid(WebVaultUrl)
                 && IsUrlValid(IconsUrl);
+        }
+
+        public bool ValidateClientAuthentication()
+        {
+            if ((string.IsNullOrEmpty(ClientCertificatePem) || RsaPkcs8.AppearsAsPemCertificate(ClientCertificatePem)) &&
+                (string.IsNullOrEmpty(ClientCertificatePem) || RsaPkcs8.AppearsAsPemPrivateKey(ClientPrivateKeyPem)))
+            {
+                return true;
+            }
+            return false;
         }
 
         private void OnSubmitException(Exception ex)

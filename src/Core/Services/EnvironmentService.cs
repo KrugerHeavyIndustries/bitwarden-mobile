@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Bit.Core.Abstractions;
 using Bit.Core.Models.Data;
 using Bit.Core.Models.Domain;
+using Bit.Core.Utilities;
 
 namespace Bit.Core.Services
 {
@@ -29,6 +30,9 @@ namespace Bit.Core.Services
         public string IconsUrl { get; set; }
         public string NotificationsUrl { get; set; }
         public string EventsUrl { get; set; }
+
+        public string ClientCertificatePem { get; set; }
+        public string ClientPrivateKeyPem { get; set; }
 
         public string GetWebVaultUrl(bool returnNullIfDefault = false)
         {
@@ -78,6 +82,25 @@ namespace Bit.Core.Services
             _apiService.SetUrls(envUrls);
         }
 
+        public async Task SetUseTLSAuthenticationFromStorageAsync()
+        {
+            var maybe = await _stateService.GetUseTLSAuthenticationAsync();
+            maybe.GetValueOrDefault(false);
+        }
+
+        public async Task SetClientCertificateDataFromStorageAsync()
+        {
+            var clientData = await _stateService.GetEnvironmentClientCertificateAsync();
+            ClientCertificatePem = clientData.ClientCertificatePem;
+            ClientPrivateKeyPem = clientData.ClientPrivateKeyPem;
+
+            _apiService.SetClientAuthentication(new ClientAuthentication()
+            {
+                Certificate = clientData.ClientCertificatePem,
+                PrivateKey = clientData.ClientPrivateKeyPem
+            });
+        }
+
         public async Task<EnvironmentUrlData> SetUrlsAsync(EnvironmentUrlData urls)
         {
             urls.Base = FormatUrl(urls.Base);
@@ -110,6 +133,28 @@ namespace Bit.Core.Services
 
             _apiService.SetUrls(envUrls);
             return urls;
+        }
+
+        public async Task<bool?> SetUseTLSAuthenticationDataAsync(bool? useIt)
+        {
+            await _stateService.SetUseTLSAuthenticationAsync(useIt);
+            return useIt;
+        }
+
+        public async Task<HttpClientData> SetClientCertificateDataAsync(HttpClientData clientData)
+        {
+            ClientCertificatePem = clientData.ClientCertificatePem.NullIfWhiteSpace();
+            ClientPrivateKeyPem = clientData.ClientPrivateKeyPem.NullIfWhiteSpace();
+
+            await _stateService.SetEnvironmentCertificateDataAsync(clientData);
+
+            _apiService.SetClientAuthentication(new ClientAuthentication()
+            {
+                Certificate = clientData.ClientCertificatePem,
+                PrivateKey = clientData.ClientPrivateKeyPem
+            });
+
+            return clientData;
         }
 
         private string FormatUrl(string url)

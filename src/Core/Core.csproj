@@ -18,6 +18,8 @@
     <None Remove="Microsoft.AppCenter.Crashes" />
     <None Remove="Services\Logging\" />
     <None Remove="Attributes\" />
+    <None Remove="PemUtils" />
+    <None Remove="modernhttpclient-updated" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,6 +34,7 @@
     <PackageReference Include="PCLCrypto" Version="2.0.147" />
     <PackageReference Include="zxcvbn-core" Version="7.0.92" />
     <PackageReference Include="Microsoft.AppCenter.Crashes" Version="4.5.3" />
+    <PackageReference Include="modernhttpclient-updated" Version="3.4.3" />
   </ItemGroup>
 
   <ItemGroup>

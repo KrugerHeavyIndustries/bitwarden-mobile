@@ -197,6 +197,8 @@ namespace Bit.Droid
         private async Task BootstrapAsync()
         {
             await ServiceContainer.Resolve<IEnvironmentService>("environmentService").SetUrlsFromStorageAsync();
+            await ServiceContainer.Resolve<IEnvironmentService>("environmentService").SetUseTLSAuthenticationFromStorageAsync();
+            await ServiceContainer.Resolve<IEnvironmentService>("environmentService").SetClientCertificateDataFromStorageAsync();
         }
 
         private void InitializeAppSetup()

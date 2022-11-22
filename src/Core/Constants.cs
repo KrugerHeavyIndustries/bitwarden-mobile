@@ -9,6 +9,8 @@
         public static string StateVersionKey = "stateVersion";
         public static string StateKey = "state";
         public static string PreAuthEnvironmentUrlsKey = "preAuthEnvironmentUrls";
+        public static string UseTLSAuthentication = "useTLSAuthentication";
+        public static string ClientCertificate = "clientCertificate";
         public static string LastFileCacheClearKey = "lastFileCacheClear";
         public static string AutofillTileAdded = "autofillTileAdded";
         public static string PushRegisteredTokenKey = "pushRegisteredToken";

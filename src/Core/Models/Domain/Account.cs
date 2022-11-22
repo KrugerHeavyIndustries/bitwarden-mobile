@@ -92,12 +92,14 @@ namespace Bit.Core.Models.Domain
                 }
 
                 EnvironmentUrls = copy.EnvironmentUrls;
+                HttpClientData = copy.HttpClientData;
                 VaultTimeout = copy.VaultTimeout;
                 VaultTimeoutAction = copy.VaultTimeoutAction;
                 ScreenCaptureAllowed = copy.ScreenCaptureAllowed;
             }
 
             public EnvironmentUrlData EnvironmentUrls;
+            public HttpClientData HttpClientData;
             public int? VaultTimeout;
             public VaultTimeoutAction? VaultTimeoutAction;
             public bool ScreenCaptureAllowed;

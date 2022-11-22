@@ -91,6 +91,52 @@
                     Text="{u:I18n CustomEnvironmentFooter}"
                     StyleClass="box-footer-label" />
             </StackLayout>
+            <StackLayout StyleClass="box">
+                <StackLayout StyleClass="box-row-header">
+                    <Label Text="{u:I18n ClientAuthentication, Header=True}"
+                           StyleClass="box-header, box-header-platform" />
+                </StackLayout>
+                <StackLayout StyleClass="box">
+                    <StackLayout StyleClass="box-row, box-row-switch">
+                        <Switch
+                            IsToggled="{Binding UseClientAuthentication}"
+                            StyleClass="box-value"
+                            HorizontalOptions="Start"
+                            Margin="0, 0, 10, 0"/>
+                        <Label StyleClass="box-footer-label"
+                           HorizontalOptions="Fill">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{u:I18n UseClientAuthentication}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                     </StackLayout>
+                 </StackLayout>
+                <StackLayout StyleClass="box-row">
+                    <Label
+                        Text="{u:I18n ClientAuthenticationCertificate}"
+                        StyleClass="box-label" />
+                    <Entry
+                        x:Name="_clientCertificateEntry"
+                        Text="{Binding ClientCertificatePem}"
+                        Keyboard="Default"
+                        StyleClass="box-value" />
+                </StackLayout>
+                <StackLayout StyleClass="box-row">
+                    <Label
+                        Text="{u:I18n ClientAuthenticationPrivateKey}"
+                        StyleClass="box-label" />
+                    <Entry
+                        x:Name="_clientPrivateKeyEntry"
+                        Text="{Binding ClientPrivateKeyPem}"
+                        Keyboard="Default"
+                        StyleClass="box-value" />
+                </StackLayout>
+                  <Label
+                    Text="{u:I18n CustomAuthenticationFooter}"
+                    StyleClass="box-footer-label" />
+            </StackLayout>
         </StackLayout>
     </ScrollView>
 

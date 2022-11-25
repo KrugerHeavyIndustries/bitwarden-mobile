@@ -157,7 +157,7 @@ namespace Bit.Core.Utilities
 
                 // algorthim type
 
-                //------ all private key components are Integer sequences ----
+                // All private key components are integer sequences
                 elems = GetIntegerSize(binr);
                 MODULUS = binr.ReadBytes(elems);
 
@@ -182,20 +182,6 @@ namespace Bit.Core.Utilities
                 elems = GetIntegerSize(binr);
                 IQ = binr.ReadBytes(elems);
 
-                Console.WriteLine("showing components ..");
-                if (true)
-                {
-                    Console.WriteLine("\nModulus", MODULUS);
-                    Console.WriteLine("\nExponent", E);
-                    Console.WriteLine("\nD", D);
-                    Console.WriteLine("\nP", P);
-                    Console.WriteLine("\nQ", Q);
-                    Console.WriteLine("\nDP", DP);
-                    Console.WriteLine("\nDQ", DQ);
-                    Console.WriteLine("\nIQ", IQ);
-                }
-
-                // ------- create RSACryptoServiceProvider instance and initialize with public key -----
                 CspParameters CspParameters = new CspParameters();
                 CspParameters.Flags = CspProviderFlags.UseDefaultKeyContainer;
                 RSACryptoServiceProvider RSA = new RSACryptoServiceProvider(1024, CspParameters);
@@ -229,13 +215,13 @@ namespace Bit.Core.Utilities
             var count = 0;
 
             bt = binary.ReadByte();
-            if (bt != 0x02)      // expect integer
+            if (bt != 0x02)
                 return 0;
 
             bt = binary.ReadByte();
             if (bt == 0x81)
             {
-                count = binary.ReadByte();   // data size in next byte
+                count = binary.ReadByte();
             }
             else
             {
@@ -248,15 +234,15 @@ namespace Bit.Core.Utilities
                 }
                 else
                 {
-                    count = bt; // we already have the data size
+                    count = bt;
                 }
             }
 
             while (binary.ReadByte() == 0x00)
-            {    //remove high order zeros in data
+            {
                 count -= 1;
             }
-            binary.BaseStream.Seek(-1, SeekOrigin.Current);   // last ReadByte wasn't a removed zero, so back up a byte
+            binary.BaseStream.Seek(-1, SeekOrigin.Current);
 
             return count;
         }

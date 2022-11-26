@@ -12,6 +12,11 @@ namespace Bit.Core.Utilities
     /// </summary>
     public static class RsaPkcs8
     {
+        // Encoded OID sequence for PKCS #1 rsaEncryption szOID_RSA_RSA = "1.2.840.113549.1.1.1"
+        // as per CRYPT_ALGORITHM_IDENTIFIER structure (wincrypt.h). This byte array includes the
+        // sequence byte and terminating encoded null.
+        private readonly static byte[] SEQ_OID = { 0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01, 0x05, 0x00 };
+
         public struct PemDemark
         {
             public readonly string H;
@@ -36,66 +41,60 @@ namespace Bit.Core.Utilities
 
         public static RSACryptoServiceProvider DecodePkcs8PrivateKey(byte[] pkcs8)
         {
-            // encoded OID sequence for PKCS #1 rsaEncryption szOID_RSA_RSA = "1.2.840.113549.1.1.1"
-            // this byte[] includes the sequence byte and terminal encoded null 
-            byte[] SeqOID = { 0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01, 0x05, 0x00 };
-            byte[] seq = new byte[15];
-            // ---------  Set up stream to read the asn.1 encoded SubjectPublicKeyInfo blob  ------
+            byte[] seq = new byte[SEQ_OID.Length];
+            // ---------  Read the asn.1 encoded SubjectPublicKeyInfo blob  ------
             MemoryStream mem = new MemoryStream(pkcs8);
-            int lenstream = (int)mem.Length;
-            BinaryReader binr = new BinaryReader(mem);    //wrap Memory Stream with BinaryReader for easy reading
+            int streamLen = (int)mem.Length;
+            BinaryReader br = new BinaryReader(mem);
             byte bt = 0;
-            ushort twobytes = 0;
+            ushort twoBytes = 0;
 
             try
             {
-
-                twobytes = binr.ReadUInt16();
-                if (twobytes == 0x8130) //data read as little endian order (actual data order for Sequence is 30 81)
-                    binr.ReadByte();    //advance 1 byte
-                else if (twobytes == 0x8230)
-                    binr.ReadInt16();   //advance 2 bytes
+                twoBytes = br.ReadUInt16();
+                if (twoBytes == 0x8130) // data read as little endian order (actual data order for Sequence is 30 81)
+                    br.ReadByte();
+                else if (twoBytes == 0x8230)
+                    br.ReadInt16();
                 else
                     return null;
 
-
-                bt = binr.ReadByte();
+                bt = br.ReadByte();
                 if (bt != 0x02)
                     return null;
 
-                twobytes = binr.ReadUInt16();
+                twoBytes = br.ReadUInt16();
 
-                if (twobytes != 0x0001)
+                if (twoBytes != 0x0001)
                     return null;
 
-                seq = binr.ReadBytes(15);       //read the Sequence OID
-                if (!CompareBytearrays(seq, SeqOID))    //make sure Sequence for OID is correct
+                seq = br.ReadBytes(SEQ_OID.Length);
+                if (!CompareBytearrays(seq, SEQ_OID))
                     return null;
 
-                bt = binr.ReadByte();
-                if (bt != 0x04) //expect an Octet string 
+                bt = br.ReadByte();
+                if (bt != 0x04) // expect an octet string
                     return null;
 
-                bt = binr.ReadByte();       //read next byte, or next 2 bytes is  0x81 or 0x82; otherwise bt is the byte count
+                bt = br.ReadByte();       // read next byte, or next 2 bytes is 0x81 or 0x82; otherwise bt is the byte count
                 if (bt == 0x81)
-                    binr.ReadByte();
+                    br.ReadByte();
                 else
                  if (bt == 0x82)
-                    binr.ReadUInt16();
-                //------ at this stage, the remaining sequence should be the RSA private key
+                    br.ReadUInt16();
 
-                byte[] rsaprivkey = binr.ReadBytes((int)(lenstream - mem.Position));
-                RSACryptoServiceProvider rsacsp = DecodeRSAPrivateKey(rsaprivkey);
-                return rsacsp;
+                // ------ At this stage, the remaining sequence should be the RSA private key
+                byte[] rsaprivkey = br.ReadBytes((int)(streamLen - mem.Position));
+                return DecodeRSAPrivateKey(rsaprivkey);
             }
-
             catch (Exception)
             {
                 return null;
             }
-
-            finally { binr.Close(); }
-
+            finally
+            {
+                br.Close();
+            }
         }
 
         public static byte[] DecodePemCertificate(string certificate)
@@ -120,7 +119,7 @@ namespace Bit.Core.Utilities
 
         private static string StripHeaderFooter(string pem, string header, string footer)
         {
-           return pem.Replace(header, null).Replace(footer, null);
+            return pem.Replace(header, null).Replace(footer, null);
         }
 
         private static bool HasHeaderFooter(string pem, string header, string footer)
@@ -134,53 +133,53 @@ namespace Bit.Core.Utilities
 
             // --------- Set up stream to decode the asn.1 encoded RSA private key ------
             MemoryStream mem = new MemoryStream(privkey);
-            BinaryReader binr = new BinaryReader(mem);  //wrap Memory Stream with BinaryReader for easy reading
+            BinaryReader br = new BinaryReader(mem);
             byte bt = 0;
-            ushort twobytes = 0;
+            ushort twoBytes = 0;
             int elems = 0;
             try
             {
-                twobytes = binr.ReadUInt16();
-                if (twobytes == 0x8130) //data read as little endian order (actual data order for Sequence is 30 81)
-                    binr.ReadByte();    //advance 1 byte
-                else if (twobytes == 0x8230)
-                    binr.ReadInt16();    //advance 2 bytes
+                twoBytes = br.ReadUInt16();
+                if (twoBytes == 0x8130) // data read as little endian order (actual data order for Sequence is 30 81)
+                    br.ReadByte();
+                else if (twoBytes == 0x8230)
+                    br.ReadInt16();
                 else
                     return null;
 
-                twobytes = binr.ReadUInt16();
-                if (twobytes != 0x0102) //version number
+                twoBytes = br.ReadUInt16();
+                if (twoBytes != 0x0102) // version number
                     return null;
-                bt = binr.ReadByte();
+                bt = br.ReadByte();
                 if (bt != 0x00)
                     return null;
 
-                // algorthim type
+                // Algorthim type
 
                 // All private key components are integer sequences
-                elems = GetIntegerSize(binr);
-                MODULUS = binr.ReadBytes(elems);
+                elems = GetIntegerSize(br);
+                MODULUS = br.ReadBytes(elems);
 
-                elems = GetIntegerSize(binr);
-                E = binr.ReadBytes(elems);
+                elems = GetIntegerSize(br);
+                E = br.ReadBytes(elems);
 
-                elems = GetIntegerSize(binr);
-                D = binr.ReadBytes(elems);
+                elems = GetIntegerSize(br);
+                D = br.ReadBytes(elems);
 
-                elems = GetIntegerSize(binr);
-                P = binr.ReadBytes(elems);
+                elems = GetIntegerSize(br);
+                P = br.ReadBytes(elems);
 
-                elems = GetIntegerSize(binr);
-                Q = binr.ReadBytes(elems);
+                elems = GetIntegerSize(br);
+                Q = br.ReadBytes(elems);
 
-                elems = GetIntegerSize(binr);
-                DP = binr.ReadBytes(elems);
+                elems = GetIntegerSize(br);
+                DP = br.ReadBytes(elems);
 
-                elems = GetIntegerSize(binr);
-                DQ = binr.ReadBytes(elems);
+                elems = GetIntegerSize(br);
+                DQ = br.ReadBytes(elems);
 
-                elems = GetIntegerSize(binr);
-                IQ = binr.ReadBytes(elems);
+                elems = GetIntegerSize(br);
+                IQ = br.ReadBytes(elems);
 
                 CspParameters CspParameters = new CspParameters();
                 CspParameters.Flags = CspProviderFlags.UseDefaultKeyContainer;
@@ -198,37 +197,36 @@ namespace Bit.Core.Utilities
                 RSA.ImportParameters(RSAparams);
                 return RSA;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine("ex1 :" + ex);
                 return null;
             }
             finally
             {
-                binr.Close();
+                br.Close();
             }
         }
 
-        private static int GetIntegerSize(BinaryReader binary)
+        private static int GetIntegerSize(BinaryReader br)
         {
             byte bt = 0;
             var count = 0;
 
-            bt = binary.ReadByte();
+            bt = br.ReadByte();
             if (bt != 0x02)
                 return 0;
 
-            bt = binary.ReadByte();
+            bt = br.ReadByte();
             if (bt == 0x81)
             {
-                count = binary.ReadByte();
+                count = br.ReadByte();
             }
             else
             {
                 if (bt == 0x82)
                 {
-                    var highbyte = binary.ReadByte();
-                    var lowbyte = binary.ReadByte();
+                    var highbyte = br.ReadByte();
+                    var lowbyte = br.ReadByte();
                     byte[] modint = { lowbyte, highbyte, 0x00, 0x00 };
                     count = BitConverter.ToInt32(modint, 0);
                 }
@@ -238,11 +236,11 @@ namespace Bit.Core.Utilities
                 }
             }
 
-            while (binary.ReadByte() == 0x00)
+            while (br.ReadByte() == 0x00)
             {
                 count -= 1;
             }
-            binary.BaseStream.Seek(-1, SeekOrigin.Current);
+            br.BaseStream.Seek(-1, SeekOrigin.Current);
 
             return count;
         }

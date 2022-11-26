@@ -15,7 +15,7 @@ namespace Bit.Core.Utilities
         // Encoded OID sequence for PKCS #1 rsaEncryption szOID_RSA_RSA = "1.2.840.113549.1.1.1"
         // as per CRYPT_ALGORITHM_IDENTIFIER structure (wincrypt.h). This byte array includes the
         // sequence byte and terminating encoded null.
-        private readonly static byte[] SEQ_OID = { 0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01, 0x05, 0x00 };
+        private readonly static byte[] ALGORITHM_OID = { 0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01, 0x05, 0x00 };
 
         public struct PemDemark
         {
@@ -41,7 +41,7 @@ namespace Bit.Core.Utilities
 
         public static RSACryptoServiceProvider DecodePkcs8PrivateKey(byte[] pkcs8)
         {
-            byte[] seq = new byte[SEQ_OID.Length];
+            byte[] seq = new byte[ALGORITHM_OID.Length];
             // ---------  Read the asn.1 encoded SubjectPublicKeyInfo blob  ------
             MemoryStream mem = new MemoryStream(pkcs8);
             int streamLen = (int)mem.Length;
@@ -68,8 +68,8 @@ namespace Bit.Core.Utilities
                 if (twoBytes != 0x0001)
                     return null;
 
-                seq = br.ReadBytes(SEQ_OID.Length);
-                if (!CompareBytearrays(seq, SEQ_OID))
+                seq = br.ReadBytes(ALGORITHM_OID.Length);
+                if (!CompareBytearrays(seq, ALGORITHM_OID))
                     return null;
 
                 bt = br.ReadByte();

@@ -99,7 +99,6 @@ namespace Bit.Core.Services
 
             _handler = new NativeMessageHandler(false, new TLSConfig()
             {
-                DangerousAcceptAnyServerCertificateValidator = true,
                 ClientCertificate = new ClientCertificate()
                 {
                     RawData = pfx12b64,

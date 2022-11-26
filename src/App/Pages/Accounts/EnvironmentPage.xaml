@@ -117,21 +117,33 @@
                     <Label
                         Text="{u:I18n ClientAuthenticationCertificate}"
                         StyleClass="box-label" />
-                    <Entry
-                        x:Name="_clientCertificateEntry"
-                        Text="{Binding ClientCertificatePem}"
-                        Keyboard="Default"
-                        StyleClass="box-value" />
+                    <StackLayout StyleClass="box-row, box-row-input">
+                        <Editor
+                            x:Name="_clientCertificateEditor"
+                            AutoSize="TextChanges"
+                            StyleClass="box-value"
+                            Text="{Binding ClientCertificatePem}"
+                            IsSpellCheckEnabled="false"
+                            IsTextPredictionEnabled="false"
+                            HeightRequest="180">
+                        </Editor>
+                    </StackLayout>
                 </StackLayout>
                 <StackLayout StyleClass="box-row">
                     <Label
                         Text="{u:I18n ClientAuthenticationPrivateKey}"
                         StyleClass="box-label" />
-                    <Entry
-                        x:Name="_clientPrivateKeyEntry"
-                        Text="{Binding ClientPrivateKeyPem}"
-                        Keyboard="Default"
-                        StyleClass="box-value" />
+                    <StackLayout StyleClass="box-row, box-row-input">
+                        <Editor
+                            x:Name="_clientPrivateKeyEditor"
+                            AutoSize="TextChanges"
+                            StyleClass="box-value"
+                            Text="{Binding ClientPrivateKeyPem}"
+                            IsSpellCheckEnabled="false"
+                            IsTextPredictionEnabled="false"
+                            HeightRequest="180">
+                        </Editor>
+                    </StackLayout>
                 </StackLayout>
                   <Label
                     Text="{u:I18n CustomAuthenticationFooter}"

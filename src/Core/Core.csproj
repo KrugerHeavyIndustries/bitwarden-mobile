@@ -18,7 +18,6 @@
     <None Remove="Microsoft.AppCenter.Crashes" />
     <None Remove="Services\Logging\" />
     <None Remove="Attributes\" />
-    <None Remove="PemUtils" />
     <None Remove="modernhttpclient-updated" />
   </ItemGroup>
 
